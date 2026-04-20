@@ -147,6 +147,11 @@ if(TEST_SOURCES)
         src/systems/electrical/Battery.cpp
         src/systems/electrical/ACBus.cpp
         src/systems/electrical/DCBus.cpp
+        src/systems/pneumatics/PneumaticSystem.cpp
+        src/systems/pneumatics/BleedSource.cpp
+        src/systems/pneumatics/Pack.cpp
+        src/systems/pneumatics/AntiIce.cpp
+        src/systems/pneumatics/Pressurization.cpp
     )
     target_apply_compiler_options(a320_tests)
     target_compile_definitions(a320_tests PRIVATE UNIT_TESTING=1)

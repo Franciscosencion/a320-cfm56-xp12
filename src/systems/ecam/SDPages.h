@@ -4,16 +4,19 @@
 namespace a320 {
 
 class ElectricalSystem;
+class PneumaticSystem;
 class NetworkServer;
 
 // Aggregates system state into SD page packets and pushes them to the network.
-// One method per SD page; called from the main electrical (or ECAM) system tick.
+// One method per SD page; called from the main system tick.
 class SDPages {
 public:
-    SDPages(NetworkServer& net) : m_net(net) {}
+    explicit SDPages(NetworkServer& net) : m_net(net) {}
 
-    // Build and send the ELEC SD page packet
-    void sendELEC(const ElectricalSystem& elec, uint32_t simTimeMs, uint32_t& seqNum);
+    void sendELEC (const ElectricalSystem&  elec,  uint32_t simTimeMs, uint32_t& seqNum);
+    void sendBLEED(const PneumaticSystem&   pneu,  uint32_t simTimeMs, uint32_t& seqNum);
+    void sendPRESS(const PneumaticSystem&   pneu,  uint32_t simTimeMs, uint32_t& seqNum);
+    void sendCOND (const PneumaticSystem&   pneu,  uint32_t simTimeMs, uint32_t& seqNum);
 
 private:
     NetworkServer& m_net;

@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:developer.x-plane.com)",
+      "Bash(curl -L -o \"/tmp/XPSDK430.zip\" \"https://developer.x-plane.com/wp-content/plugins/code-sample-generation/sdk_zip_files/XPSDK430.zip\")",
+      "Bash(cd /tmp)",
+      "Bash(unzip -o XPSDK430.zip -d XPSDK430)",
+      "Bash(cp -f /tmp/XPSDK430/SDK/CHeaders/XPLM/*.h \"L:/Claude/Projects/X-Plane A320/sdk/XPLM/\")",
+      "Bash(cp -f /tmp/XPSDK430/SDK/CHeaders/Widgets/*.h \"L:/Claude/Projects/X-Plane A320/sdk/XPWidgets/\")",
+      "Bash(cp -f /tmp/XPSDK430/SDK/CHeaders/Wrappers/* \"L:/Claude/Projects/X-Plane A320/sdk/Wrappers/\")",
+      "Bash(cp -f /tmp/XPSDK430/SDK/Libraries/Win/*.lib \"L:/Claude/Projects/X-Plane A320/sdk/Libraries/Win/\")",
+      "Bash(cp -f /tmp/XPSDK430/SDK/Libraries/Lin/*.so  \"L:/Claude/Projects/X-Plane A320/sdk/Libraries/Lin/\")",
+      "Bash(cmake --build build --config Release --parallel)",
+      "Bash(cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release)",
+      "Bash(ctest --test-dir build --output-on-failure -C Release)",
+      "Bash(gh auth *)",
+      "Bash(git init *)",
+      "Bash(git checkout *)",
+      "Bash(gh repo *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git config *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(cmake --build build --target a320_tests)",
+      "Bash(ctest --output-on-failure)",
+      "Bash(cmake --build build)",
+      "Bash(./a320_tests.exe \"Pressurization: at cruise altitude, diff press approaches 8.06 PSI\" --reporter compact)",
+      "Bash(./a320_tests.exe \"[pneumatics]\" --reporter compact)",
+      "Bash(ctest -R \"cruise altitude\" --output-on-failure)"
+    ]
+  }
+}

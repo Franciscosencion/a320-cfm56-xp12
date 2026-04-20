@@ -22,6 +22,9 @@ enum class PacketType : uint16_t {
     NDData              = 0x0011,
     EWDData             = 0x0020,
     SDPageData          = 0x0021,
+    SDBleedPage         = 0x0022,
+    SDPressPage         = 0x0023,
+    SDCondPage          = 0x0024,
     MCDUDisplay         = 0x0030,
     OverheadState       = 0x0040,
     PedestalState       = 0x0041,
@@ -209,6 +212,70 @@ struct SDElecPage {
     float   bat2Voltage;
     float   bat1ChargePct;
     float   bat2ChargePct;
+};
+
+// ── SD BLEED page ─────────────────────────────────────────────────────────
+struct SDBleedPage {
+    PacketHeader hdr;
+
+    // Engine bleed sources [0]=ENG1 [1]=ENG2
+    uint8_t bleedOn[2];        // valve open and flow available
+    float   bleedPressPsi[2];  // manifold pressure
+    float   bleedTempC[2];     // bleed temperature
+
+    // APU bleed
+    uint8_t apuBleedOn;
+    float   apuBleedPressPsi;
+
+    // Cross-bleed valve
+    uint8_t xBleedOpen;
+
+    // Manifold pressures
+    float   manifold1Psi;
+    float   manifold2Psi;
+
+    // Anti-ice
+    uint8_t wingAntiIce;
+    uint8_t eng1AntiIce;
+    uint8_t eng2AntiIce;
+
+    // Pack flow control valves
+    uint8_t pack1On;
+    uint8_t pack2On;
+    float   pack1InletTempC;
+    float   pack2InletTempC;
+};
+
+// ── SD PRESS page ─────────────────────────────────────────────────────────
+struct SDPressPage {
+    PacketHeader hdr;
+
+    float   cabinAltFt;
+    float   diffPressPsi;
+    float   cabinVsFpm;
+    float   outflowValvePct;
+    uint8_t safetyValveOpen;
+    uint8_t excessCabinAlt;    // ECAM warning: >9550 ft
+    uint8_t excessDiffPress;   // ECAM warning: >8.35 PSI
+    float   landingElevFt;
+};
+
+// ── SD COND page ──────────────────────────────────────────────────────────
+struct SDCondPage {
+    PacketHeader hdr;
+
+    // Pack outlet temperatures
+    float   pack1OutletTempC;
+    float   pack2OutletTempC;
+    float   pack1FlowKgS;
+    float   pack2FlowKgS;
+
+    // Zone temperatures (cockpit + 3 cabin zones: FWD, MID, AFT)
+    float   zoneTempC[4];      // [0]=cockpit [1]=fwd [2]=mid [3]=aft
+    float   zoneTempSetC[4];   // target temps
+
+    // Hot air valve (trim air)
+    uint8_t hotAirOn;
 };
 
 // ── Hardware input events (TCP client → plugin) ────────────────────────────
