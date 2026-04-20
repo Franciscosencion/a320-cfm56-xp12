@@ -1,0 +1,16 @@
+{
+    "network": {
+        "udp_port": 45010,
+        "tcp_port": 45011,
+        "broadcast_hz": 25
+    },
+    "systems": {
+        "fadec_override": true,
+        "fbw_override": true,
+        "electrical_sim": true
+    },
+    "debug": {
+        "log_level": "info",
+        "overlay_enabled": false
+    }
+}

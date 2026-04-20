@@ -1,0 +1,23 @@
+{
+    "_comment": "Maps physical button IDs to A320 actions. Edit for your hardware.",
+    "buttons": {
+        "100": "fcu.ap1_engage",
+        "101": "fcu.ap2_engage",
+        "102": "fcu.athr_engage",
+        "103": "fcu.fd1_toggle",
+        "104": "fcu.fd2_toggle",
+        "110": "fcu.spd_managed_push",
+        "111": "fcu.hdg_managed_push",
+        "112": "fcu.alt_managed_push",
+        "200": "overhead.bat1_on",
+        "201": "overhead.bat2_on",
+        "202": "overhead.apu_start"
+    },
+    "axes": {
+        "0": "throttle.eng1",
+        "1": "throttle.eng2",
+        "2": "fcu.speed_selector",
+        "3": "fcu.heading_selector",
+        "4": "fcu.altitude_selector"
+    }
+}

@@ -1,0 +1,10 @@
+build/
+.cache/
+*.xpl
+*.pdb
+*.ilk
+a320_plugin.log
+CMakeUserPresets.json
+.vs/
+.vscode/
+*.user

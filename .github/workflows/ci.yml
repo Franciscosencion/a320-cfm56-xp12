@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            preset: windows
+            artifact: win.xpl
+          - os: ubuntu-latest
+            preset: linux
+            artifact: lin.xpl
+          - os: macos-14         # Apple Silicon runner
+            preset: macos
+            artifact: mac.xpl
+
+    runs-on: ${{ matrix.os }}
+    name: Build (${{ matrix.os }})
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux deps
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y ninja-build
+
+      - name: Install macOS deps
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Configure
+        run: >
+          cmake -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Run unit tests
+        run: ctest --test-dir build --output-on-failure -C Release
+
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: a320-plugin-${{ matrix.os }}
+          path: build/${{ matrix.artifact }}
+          if-no-files-found: warn
+
+  # Separate job: verify the plugin artifact name convention
+  verify-artifacts:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: a320-plugin-*
+          merge-multiple: true
+          path: artifacts/
+      - name: List artifacts
+        run: ls -lh artifacts/
