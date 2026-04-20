@@ -134,21 +134,31 @@ TEST_CASE("X-bleed OPEN: both manifolds from single ENG2 source", "[pneumatics]"
 
 TEST_CASE("APU bleed: feeds left manifold; X-bleed AUTO opens to feed right", "[pneumatics]")
 {
+    // FCOM DSC-36-10-30: APU bleed available when N > 95%; DSC-36-20: X-bleed AUTO opens when APU bleed active
     auto pneu = makeSystem();
-    pneu.setApuBleedAvail(true);
+    pneu.setApuNPct(100.f);   // APU at full speed (> 95% threshold)
     tickNoEngines(pneu);
 
     CHECK(pneu.isApuBleedActive());
     CHECK(pneu.manifold1PressurePsi() > 0.f);  // APU feeds left directly
-    CHECK(pneu.isXBleedOpen());                // X-bleed AUTO opens for APU ops
+    CHECK(pneu.isXBleedOpen());                 // X-bleed AUTO opens when APU bleed active
     CHECK(pneu.manifold2PressurePsi() > 0.f);  // right via X-bleed
 }
 
-TEST_CASE("APU bleed switch OFF: no APU bleed even if available", "[pneumatics]")
+TEST_CASE("APU bleed: not available below 95% N (FCOM DSC-36-10-30)", "[pneumatics]")
+{
+    auto pneu = makeSystem();
+    pneu.setApuNPct(90.f);   // below 95% threshold
+    tickNoEngines(pneu);
+
+    CHECK_FALSE(pneu.isApuBleedActive());
+}
+
+TEST_CASE("APU bleed switch OFF: no APU bleed even if N > 95%", "[pneumatics]")
 {
     auto pneu = makeSystem();
     pneu.setApuBleedSwitch(false);
-    pneu.setApuBleedAvail(true);
+    pneu.setApuNPct(100.f);
     tickNoEngines(pneu);
 
     CHECK_FALSE(pneu.isApuBleedActive());

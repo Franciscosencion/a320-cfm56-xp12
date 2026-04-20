@@ -108,7 +108,7 @@ void PneumaticSystem::updateManifolds()
     bool eng1Flow = m_bleed1.isFlowAvailable();
     bool eng2Flow = m_bleed2.isFlowAvailable();
 
-    m_apuBleedActive = m_apuBleedAvail && m_apuBleedSwitch;
+    m_apuBleedActive = (m_apuNPct > APU_BLEED_MIN_N) && m_apuBleedSwitch;
 
     // X-bleed valve logic (FCOM DSC-36-20):
     //   AUTO: open ONLY when APU bleed valve is open; closed otherwise
@@ -156,7 +156,8 @@ void PneumaticSystem::updateManifolds()
 
 void PneumaticSystem::setEng1N2(float n2)            { m_bleed1.setN2(n2); }
 void PneumaticSystem::setEng2N2(float n2)            { m_bleed2.setN2(n2); }
-void PneumaticSystem::setApuBleedAvail(bool avail)   { m_apuBleedAvail  = avail; }
+void PneumaticSystem::setApuNPct(float nPct)          { m_apuNPct        = nPct; }
+void PneumaticSystem::setApuBleedAvail(bool avail)   { m_apuNPct        = avail ? 100.f : 0.f; }
 void PneumaticSystem::setOatDegC(float oat)          { m_oatDegC        = oat; }
 void PneumaticSystem::setAircraftAltFt(float alt)    { m_altFt          = alt; }
 void PneumaticSystem::setAmbientPressHpa(float hpa)  { m_ambientPressHpa = hpa; }

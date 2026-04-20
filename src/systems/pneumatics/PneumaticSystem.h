@@ -31,7 +31,9 @@ public:
     // ── Engine / APU inputs (fed each tick) ──────────────────────────────────
     void setEng1N2(float n2Pct);
     void setEng2N2(float n2Pct);
-    void setApuBleedAvail(bool avail);
+    // FCOM DSC-36-10-30: APU bleed available when APU N > 95%
+    void setApuNPct(float nPct);
+    void setApuBleedAvail(bool avail);  // legacy: treated as N=100% when true, N=0% when false
     void setOatDegC(float oat);
     void setAircraftAltFt(float alt);
     void setAmbientPressHpa(float hpa);
@@ -79,8 +81,11 @@ private:
     float       m_altFt          = 0.f;
     float       m_ambientPressHpa = 1013.25f;
     bool        m_onGround       = true;
-    bool        m_apuBleedAvail  = false;
+    float       m_apuNPct        = 0.f;   // APU speed %N; bleed available when > 95%
     bool        m_apuBleedSwitch = true;
+
+    // FCOM DSC-36-10-30: APU bleed available when N > 95%
+    static constexpr float APU_BLEED_MIN_N = 95.f;
     XBleedMode  m_xBleedMode     = XBleedMode::Auto;
 
     // Resolved each tick
