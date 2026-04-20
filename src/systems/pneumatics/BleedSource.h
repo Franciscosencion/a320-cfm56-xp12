@@ -2,10 +2,11 @@
 
 namespace a320 {
 
-// Models one engine HP/IP bleed extraction point.
-// HP bleed: N2 > 68% → ~35 PSI (high pressure stage)
-// IP bleed: N2 > 15% → ~18 PSI (intermediate stage, lower pressure)
-// The overhead BLEED pb controls the high-pressure shut-off valve.
+// Models one engine bleed extraction point (BMC-controlled).
+// FCOM DSC-36-10-20: IP stage is the normal source; HP stage supplements at low N2.
+// The bleed valve downstream of the HP/IP junction regulates delivery to 45 ± 5 PSI.
+// Bleed valve closes if upstream pressure < 8 PSI (≈ N2 below ~15%).
+// The overhead BLEED pb controls the bleed shut-off valve.
 class BleedSource {
 public:
     explicit BleedSource(int index);
@@ -35,12 +36,11 @@ private:
     float m_pressurePsi = 0.f;
     float m_tempC       = 20.f;
 
-    static constexpr float HP_MIN_N2 = 68.f;
-    static constexpr float IP_MIN_N2 = 15.f;
-    static constexpr float HP_PRESS  = 35.f;   // PSI at HP stage
-    static constexpr float IP_PRESS  = 18.f;   // PSI at IP stage
-    static constexpr float HP_TEMP_C = 180.f;  // approx HP bleed temp
-    static constexpr float IP_TEMP_C = 120.f;  // approx IP bleed temp
+    // N2 below this: upstream pressure < 8 PSI, bleed valve cannot open (FCOM DSC-36-10-20)
+    static constexpr float MIN_N2     = 15.f;
+    // Regulated delivery pressure at manifold (FCOM DSC-36-10-20: 45 ± 5 PSI)
+    static constexpr float DELIVERY_PRESS_PSI = 45.f;
+    static constexpr float BLEED_TEMP_C       = 200.f;  // typical precooled bleed temp
 };
 
 } // namespace a320

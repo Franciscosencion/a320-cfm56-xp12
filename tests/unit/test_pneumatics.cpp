@@ -31,26 +31,28 @@ static void tickNoEngines(PneumaticSystem& pneu, float dt = 0.02f)
 
 // ── Bleed source ─────────────────────────────────────────────────────────────
 
-TEST_CASE("Bleed: N2 > 68% -> HP bleed active at 35 PSI", "[pneumatics]")
+TEST_CASE("Bleed: N2 > 68% -> bleed valve open at 45 PSI (regulated delivery)", "[pneumatics]")
 {
+    // FCOM DSC-36-10-20: bleed valve maintains delivery pressure at 45 +/-5 PSI
     auto pneu = makeSystem();
     tickBothEngines(pneu);
 
     CHECK(pneu.bleed1().isFlowAvailable());
     CHECK(pneu.bleed2().isFlowAvailable());
-    CHECK_THAT(pneu.bleed1().pressurePsi(), WithinAbs(35.f, 0.1f));
-    CHECK_THAT(pneu.bleed2().pressurePsi(), WithinAbs(35.f, 0.1f));
+    CHECK_THAT(pneu.bleed1().pressurePsi(), WithinAbs(45.f, 0.1f));
+    CHECK_THAT(pneu.bleed2().pressurePsi(), WithinAbs(45.f, 0.1f));
 }
 
-TEST_CASE("Bleed: N2 between 15-68% -> IP bleed active at 18 PSI", "[pneumatics]")
+TEST_CASE("Bleed: N2 between 15-68% -> bleed still available at 45 PSI (IP stage, BMC-regulated)", "[pneumatics]")
 {
+    // FCOM DSC-36-10-20: IP is normal source; bleed valve regulates to 45 PSI regardless of stage
     auto pneu = makeSystem();
     pneu.setEng1N2(40.f);
     pneu.setEng2N2(40.f);
     pneu.update(0.02f);
 
     CHECK(pneu.bleed1().isFlowAvailable());
-    CHECK_THAT(pneu.bleed1().pressurePsi(), WithinAbs(18.f, 0.1f));
+    CHECK_THAT(pneu.bleed1().pressurePsi(), WithinAbs(45.f, 0.1f));
 }
 
 TEST_CASE("Bleed: N2 < 15% -> no bleed flow", "[pneumatics]")
@@ -87,17 +89,19 @@ TEST_CASE("Both engines: both manifolds pressurised", "[pneumatics]")
     CHECK(pneu.manifold2PressurePsi() > 0.f);
 }
 
-TEST_CASE("X-bleed AUTO: ENG1 loss -> X-bleed opens, ENG2 feeds left manifold", "[pneumatics]")
+TEST_CASE("X-bleed AUTO: ENG1 loss -> X-bleed stays CLOSED, left manifold unpressurised", "[pneumatics]")
 {
+    // FCOM DSC-36-20: AUTO opens crossbleed ONLY when APU bleed valve is open.
+    // Single engine loss does NOT auto-open X-bleed; crew must select OPEN manually.
     auto pneu = makeSystem();
     pneu.setXBleedSelector(XBleedMode::Auto);
     pneu.setEng1N2(0.f);   // ENG1 bleed lost
     pneu.setEng2N2(80.f);
     pneu.update(0.02f);
 
-    CHECK(pneu.isXBleedOpen());
-    CHECK(pneu.manifold1PressurePsi() > 0.f);  // fed via X-bleed from ENG2
-    CHECK(pneu.manifold2PressurePsi() > 0.f);
+    CHECK_FALSE(pneu.isXBleedOpen());
+    CHECK_THAT(pneu.manifold1PressurePsi(), WithinAbs(0.f, 0.1f));  // ENG1 lost, no X-bleed
+    CHECK(pneu.manifold2PressurePsi() > 0.f);                        // ENG2 still feeds right
 }
 
 TEST_CASE("X-bleed CLOSED: ENG1 loss -> left manifold unpressurised", "[pneumatics]")

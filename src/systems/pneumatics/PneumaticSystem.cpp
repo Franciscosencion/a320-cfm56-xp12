@@ -110,10 +110,10 @@ void PneumaticSystem::updateManifolds()
 
     m_apuBleedActive = m_apuBleedAvail && m_apuBleedSwitch;
 
-    // X-bleed valve logic:
-    //   AUTO: open when only one engine bleed is available (single-engine/APU ops)
+    // X-bleed valve logic (FCOM DSC-36-20):
+    //   AUTO: open ONLY when APU bleed valve is open; closed otherwise
     //   OPEN: always open
-    //   CLOSED: always closed
+    //   SHUT: always closed
     bool xBleedOpen = false;
     switch (m_xBleedMode) {
         case XBleedMode::Open:
@@ -123,8 +123,8 @@ void PneumaticSystem::updateManifolds()
             xBleedOpen = false;
             break;
         case XBleedMode::Auto:
-            // Open when APU is providing bleed or when one engine bleed is lost
-            xBleedOpen = m_apuBleedActive || (eng1Flow != eng2Flow);
+            // AUTO opens only when APU bleed is active (DSC-36-20 item 3)
+            xBleedOpen = m_apuBleedActive;
             break;
     }
     m_xBleedOpen = xBleedOpen;
@@ -133,7 +133,7 @@ void PneumaticSystem::updateManifolds()
     if (eng1Flow) {
         m_manifold1Psi = m_bleed1.pressurePsi();
     } else if (m_apuBleedActive) {
-        m_manifold1Psi = 30.f;  // APU bleed pressure (lower than HP)
+        m_manifold1Psi = 45.f;  // APU bleed pressure (lower than HP)
     } else if (xBleedOpen && eng2Flow) {
         m_manifold1Psi = m_bleed2.pressurePsi();
     } else {
@@ -144,7 +144,7 @@ void PneumaticSystem::updateManifolds()
     if (eng2Flow) {
         m_manifold2Psi = m_bleed2.pressurePsi();
     } else if (m_apuBleedActive && xBleedOpen) {
-        m_manifold2Psi = 30.f;
+        m_manifold2Psi = 45.f;
     } else if (xBleedOpen && eng1Flow) {
         m_manifold2Psi = m_bleed1.pressurePsi();
     } else {

@@ -13,14 +13,12 @@ void BleedSource::update(float /*dt*/)
         return;
     }
 
-    if (m_n2Pct >= HP_MIN_N2) {
+    // Bleed valve opens when upstream pressure is sufficient (N2 >= ~15%).
+    // BMC selects IP or HP stage internally; manifold always sees regulated 45 PSI.
+    if (m_n2Pct >= MIN_N2) {
         m_flowAvail   = true;
-        m_pressurePsi = HP_PRESS;
-        m_tempC       = HP_TEMP_C;
-    } else if (m_n2Pct >= IP_MIN_N2) {
-        m_flowAvail   = true;
-        m_pressurePsi = IP_PRESS;
-        m_tempC       = IP_TEMP_C;
+        m_pressurePsi = DELIVERY_PRESS_PSI;
+        m_tempC       = BLEED_TEMP_C;
     } else {
         m_flowAvail   = false;
         m_pressurePsi = 0.f;
