@@ -2,15 +2,22 @@
 #include "core/FlightLoop.h"
 #include "core/Logger.h"
 #include "core/Config.h"
+#include "core/DataRefManager.h"
 #include "network/NetworkServer.h"
+#include "systems/electrical/ElectricalSystem.h"
+#include "systems/ecam/SDPages.h"
 
 #include <XPLM/XPLMDefs.h>
+#include <XPLM/XPLMProcessing.h>
 
 #include <cstring>
 #include <memory>
 
-static std::unique_ptr<a320::FlightLoop>     g_flightLoop;
-static std::unique_ptr<a320::NetworkServer>  g_networkServer;
+static std::unique_ptr<a320::FlightLoop>        g_flightLoop;
+static std::unique_ptr<a320::NetworkServer>     g_networkServer;
+static std::unique_ptr<a320::ElectricalSystem>  g_electrical;
+static std::unique_ptr<a320::SDPages>           g_sdPages;
+static uint32_t                                  g_seqNum = 0;
 
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 {
@@ -44,7 +51,21 @@ PLUGIN_API int XPluginEnable(void)
     g_networkServer = std::make_unique<a320::NetworkServer>(45010, 45011);
     g_networkServer->start();
 
+    g_electrical = std::make_unique<a320::ElectricalSystem>();
+    g_electrical->init();
+
+    g_sdPages = std::make_unique<a320::SDPages>(*g_networkServer);
+
     g_flightLoop = std::make_unique<a320::FlightLoop>();
+
+    // Register 50 Hz systems tick
+    g_flightLoop->addSystem([](float dt) {
+        g_electrical->update(dt);
+
+        uint32_t simTimeMs = static_cast<uint32_t>(XPLMGetElapsedTime() * 1000.f);
+        g_sdPages->sendELEC(*g_electrical, simTimeMs, g_seqNum);
+    });
+
     g_flightLoop->registerCallbacks();
 
     return 1;
@@ -55,6 +76,9 @@ PLUGIN_API void XPluginDisable(void)
     LOG_INFO("A320 plugin disabled");
     if (g_flightLoop)    g_flightLoop->unregisterCallbacks();
     if (g_networkServer) g_networkServer->stop();
+    g_sdPages.reset();
+    g_electrical.reset();
+    a320::DataRefManager::instance().unregisterAll();
 }
 
 PLUGIN_API void XPluginReceiveMessage(int /*inFrom*/, int /*inMsg*/, void* /*inParam*/)

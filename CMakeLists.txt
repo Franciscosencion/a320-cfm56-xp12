@@ -137,7 +137,17 @@ if(TEST_SOURCES)
         src/core/EventBus.h   # header-only, listed for IDE visibility
     )
 
-    add_executable(a320_tests ${TEST_SOURCES} src/core/Config.cpp src/core/Logger.cpp)
+    add_executable(a320_tests
+        ${TEST_SOURCES}
+        src/core/Config.cpp
+        src/core/Logger.cpp
+        src/core/DataRefManager.cpp
+        src/systems/electrical/ElectricalSystem.cpp
+        src/systems/electrical/Generator.cpp
+        src/systems/electrical/Battery.cpp
+        src/systems/electrical/ACBus.cpp
+        src/systems/electrical/DCBus.cpp
+    )
     target_apply_compiler_options(a320_tests)
     target_compile_definitions(a320_tests PRIVATE UNIT_TESTING=1)
     target_include_directories(a320_tests PRIVATE src)

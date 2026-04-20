@@ -1,6 +1,10 @@
 #pragma once
-#include <XPLM/XPLMDataAccess.h>
-#include <XPLM/XPLMDefs.h>
+#ifndef UNIT_TESTING
+#  include <XPLM/XPLMDataAccess.h>
+#  include <XPLM/XPLMDefs.h>
+#else
+   using XPLMDataRef = void*;
+#endif
 #include <string>
 #include <unordered_map>
 #include <vector>

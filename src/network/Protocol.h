@@ -163,6 +163,54 @@ struct EWDData {
     char     warningLine2[40];
 };
 
+// ── SD ELEC page ──────────────────────────────────────────────────────────
+struct SDElecPage {
+    PacketHeader hdr;
+
+    // AC buses: powered flag + voltage (V) + frequency (Hz)
+    uint8_t acBus1Powered;
+    float   acBus1Voltage;
+    float   acBus1Freq;
+
+    uint8_t acBus2Powered;
+    float   acBus2Voltage;
+    float   acBus2Freq;
+
+    uint8_t acEssPowered;
+    float   acEssVoltage;
+    float   acEssFreq;
+
+    uint8_t acEssShedPowered;
+
+    // DC buses: powered flag + voltage (V)
+    uint8_t dcBus1Powered;
+    float   dcBus1Voltage;
+
+    uint8_t dcBus2Powered;
+    float   dcBus2Voltage;
+
+    uint8_t dcEssPowered;
+    float   dcEssVoltage;
+
+    uint8_t dcBatPowered;
+    float   dcBatVoltage;
+
+    uint8_t hotBus1Powered;
+    uint8_t hotBus2Powered;
+
+    // Generators [0]=IDG1 [1]=IDG2 [2]=APU GEN [3]=EXT PWR
+    uint8_t genOnline[4];
+    float   genVoltage[4];
+    float   genFreq[4];
+    float   genLoadPct[4];
+
+    // Batteries
+    float   bat1Voltage;
+    float   bat2Voltage;
+    float   bat1ChargePct;
+    float   bat2ChargePct;
+};
+
 // ── Hardware input events (TCP client → plugin) ────────────────────────────
 enum class FCUKnob : uint8_t {
     Speed = 0, Heading, Altitude, VsFpa

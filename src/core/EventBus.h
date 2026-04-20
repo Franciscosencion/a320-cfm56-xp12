@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <functional>
 #include <typeindex>
 #include <unordered_map>
@@ -57,5 +58,5 @@ private:
 
 #define A320_SUBSCRIBE(EventType, handler) \
     ::a320::EventBus::instance().subscribe<EventType>(handler)
-#define A320_PUBLISH(event) \
-    ::a320::EventBus::instance().publish(event)
+#define A320_PUBLISH(...) \
+    ::a320::EventBus::instance().publish(__VA_ARGS__)
